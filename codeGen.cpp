@@ -143,7 +143,6 @@ bool CodeGenInspector::preorder(const IR::Member* expression) {
 
 bool CodeGenInspector::preorder(const IR::PathExpression* expression) {
     visit(expression->path);
-    printf("PathExpression: %s %s\n", expression->toString(), expression->path->name.name);
     return false;
 }
 
