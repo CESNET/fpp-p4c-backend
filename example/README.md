@@ -1,6 +1,7 @@
 # Flexible packet parser example
 
-This folder contains example usage of generated packet parser. Example program reads packet
+This folder contains example usage of generated packet parser. Example program reads packet from `pcaps/tunnel.pcap` file
+and uses generated parser to extract headers from it. Parsed headers are returned as a linked list and printed to terminal.
 
 ## Dependencies
 
