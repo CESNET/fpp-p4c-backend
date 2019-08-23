@@ -43,7 +43,8 @@ void process_packet(const struct pcap_pkthdr *pcap_hdr, packet_hdr_t *headers, i
          printf("      ethtype=\t%#02x\n", eth->ethertype);
       } else if (headers->type == fpp_ipv4_h) {
          ipv4 = headers->hdr;
-
+         ipv4->src_addr = ntohl(ipv4->src_addr);
+         ipv4->dst_addr = ntohl(ipv4->dst_addr);
          inet_ntop(AF_INET, (const void *) &ipv4->src_addr, src_ip, INET6_ADDRSTRLEN);
          inet_ntop(AF_INET, (const void *) &ipv4->dst_addr, dst_ip, INET6_ADDRSTRLEN);
 
@@ -91,7 +92,7 @@ int main(int argc, char *argv[])
 {
    int ret;
    int status = 0;
-   const char pcap_path[] = "pcaps/tunnel.pcap";
+   const char pcap_path[] = "pcaps/http_part2.pcap";
    packet_hdr_t *parsed_headers = NULL;
 
    char errbuf[PCAP_ERRBUF_SIZE];

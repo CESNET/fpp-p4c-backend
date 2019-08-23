@@ -34,7 +34,7 @@ class StateTranslationVisitor : public CodeGenInspector {
 
     void compileExtractField(const IR::Expression* expr, cstring name,
                              unsigned alignment, FPPType* type);
-    void compileExtract(const IR::Vector<IR::Expression>* args);
+    void compileExtract(const IR::Vector<IR::Argument>* args);
     void compileLookahead(const IR::Type* args);
 
  public:
@@ -164,12 +164,14 @@ StateTranslationVisitor::compileExtractField(
         unsigned shift = loadSize - alignment - widthToExtract;
         builder->emitIndent();
         visit(expr);
-        builder->appendFormat(".%s = %s((", field.c_str(), switch_func);
+        builder->appendFormat(".%s = (%s((", field.c_str(), switch_func);
         type->emit(builder);
-        builder->appendFormat(")((%s(%s, BYTES(%s))",
+        builder->appendFormat(")(%s(%s, BYTES(%s))",
                               helper,
                               program->packetStartVar.c_str(),
                               program->offsetVar.c_str());
+        builder->append(")");
+        builder->append(")");
         if (shift != 0)
             builder->appendFormat(" >> %d", shift);
         builder->append(")");
@@ -180,7 +182,6 @@ StateTranslationVisitor::compileExtractField(
             builder->appendFormat(", %d)", widthToExtract);
         }
 
-        builder->append("))");
         builder->endOfStatement(true);
     } else {
         // bigger than 4 bytes; read all bytes one by one.
@@ -295,14 +296,14 @@ StateTranslationVisitor::compileLookahead(const IR::Type* type) {
 }
 
 void
-StateTranslationVisitor::compileExtract(const IR::Vector<IR::Expression>* args) {
+StateTranslationVisitor::compileExtract(const IR::Vector<IR::Argument>* args) {
     if (args->size() != 1) {
         ::error("Variable-sized header fields not yet supported %1%", args);
         return;
     }
 
     bool is_headers_type = false;
-    auto expr = args->at(0);
+    auto expr = args->at(0)->expression;
     auto type = state->parser->typeMap->getType(expr);
 
     auto membr = expr->to<IR::Member>();

@@ -60,11 +60,14 @@ void compile(FPPOptions& options) {
     FPP::run_fpp_backend(options, toplevel, &midend.refMap, &midend.typeMap);
 }
 
+using FPPContext = P4CContextWithOptions<FPPOptions>;
+
 int main(int argc, char *const argv[]) {
     setup_gc_logging();
     setup_signals();
 
-    FPPOptions options;
+    AutoCompileContext autoEbpfContext(new FPPContext);
+    auto& options = FPPContext::get().options();
     options.compilerVersion = "0.0.1";
 
     if (options.process(argc, argv) != nullptr)

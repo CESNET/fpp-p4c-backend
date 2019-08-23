@@ -19,6 +19,7 @@ limitations under the License.
 #include <chrono>
 #include <ctime>
 
+#include "ir/ir.h"
 #include "fppProgram.h"
 #include "fppType.h"
 #include "fppParser.h"
@@ -94,7 +95,7 @@ void FPPProgram::emitC(CodeBuilder* builder, cstring header) {
           continue;
        type->emitType(builder);
 
-       builder->appendFormat(" %s", loc->getName().toString());
+       builder->appendFormat(" %s", loc->name.name.c_str());
        builder->endOfStatement(true);
     }
 
@@ -108,7 +109,7 @@ void FPPProgram::emitC(CodeBuilder* builder, cstring header) {
           continue;
 
        builder->emitIndent();
-       builder->appendFormat("(void) %s", loc->getName().toString());
+       builder->appendFormat("(void) %s", loc->name.name.c_str());
        builder->endOfStatement(true);
     }
 
@@ -183,7 +184,7 @@ void FPPProgram::emitTypes(CodeBuilder* builder) {
     builder->blockStart();
     builder->emitIndent();
     builder->append("fpp_unknown_hdr");
-    for (auto d : program->declarations) {
+    for (auto d : program->objects) {
         if (d->is<IR::Type>() && !d->is<IR::IContainer>() &&
             !d->is<IR::Type_Extern>() && !d->is<IR::Type_Parser>() &&
             !d->is<IR::Type_Control>() && !d->is<IR::Type_Typedef>() &&
@@ -205,7 +206,7 @@ void FPPProgram::emitTypes(CodeBuilder* builder) {
     builder->endOfStatement(true);
     builder->newline();
 
-    for (auto d : program->declarations) {
+    for (auto d : program->objects) {
         if (d->is<IR::Type>() && !d->is<IR::IContainer>() &&
             !d->is<IR::Type_Extern>() && !d->is<IR::Type_Parser>() &&
             !d->is<IR::Type_Control>() && !d->is<IR::Type_Typedef>() &&

@@ -172,12 +172,13 @@ bool CodeGenInspector::preorder(const IR::ListExpression* expression) {
 }
 
 bool CodeGenInspector::preorder(const IR::MethodCallExpression* expression) {
-    P4::MethodCallDescription mcd(expression, refMap, typeMap);
+    auto mi = P4::MethodInstance::resolve(expression, refMap, typeMap);
+    auto bim = mi->to<P4::BuiltInMethod>();
 
     visit(expression->method);
     builder->append("(");
     bool first = true;
-    for (auto p : *mcd.substitution.getParameters()) {
+    for (auto p : *mi->substitution.getParametersInArgumentOrder()) {
         if (!first)
             builder->append(", ");
         first = false;
@@ -185,7 +186,7 @@ bool CodeGenInspector::preorder(const IR::MethodCallExpression* expression) {
         if (p->direction == IR::Direction::Out ||
             p->direction == IR::Direction::InOut)
             builder->append("&");
-        auto arg = mcd.substitution.lookup(p);
+        auto arg = mi->substitution.lookup(p);
         visit(arg);
     }
     builder->append(")");

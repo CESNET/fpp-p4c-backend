@@ -21,6 +21,7 @@ limitations under the License.
 #include "frontends/p4/evaluator/evaluator.h"
 
 #include "fppBackend.h"
+#include "fppOptions.h"
 #include "target.h"
 #include "fppType.h"
 #include "fppProgram.h"
@@ -54,16 +55,21 @@ void run_fpp_backend(const FPPOptions& options, const IR::ToplevelBlock* topleve
     if (!fppprog->build())
         return;
 
-    if (options.outputFile.isNullOrEmpty())
+    if (options.file.isNullOrEmpty())
         return;
 
-    cstring cfile = options.outputFile;
+    cstring cfile = options.file;
+    const char* dot = cfile.findlast('.');
+    if (dot == nullptr)
+        cfile = cfile + ".c";
+    else
+        cfile = cfile.before(dot) + ".c";
     auto cstream = openFile(cfile, false);
     if (cstream == nullptr)
         return;
 
     cstring hfile;
-    const char* dot = cfile.findlast('.');
+    dot = cfile.findlast('.');
     if (dot == nullptr)
         hfile = cfile + ".h";
     else
